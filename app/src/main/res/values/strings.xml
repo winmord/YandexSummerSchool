@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">YandexSummerSchool</string>
+    <string name="stocks">Stocks</string>
+    <string name="favourite">Favourite</string>
+    <string name="find_company">Find company or ticker</string>
+    <string name="string_find_company">find_company</string>
+    <string name="text_1">name</string>
+    <string name="text_2">company</string>
+    <string name="text_3">price</string>
+    <string name="text_4">day_delta</string>
+    <string name="token">pk_0f988f4080bf4bbca37aa746c6b4c56c</string>
+</resources>

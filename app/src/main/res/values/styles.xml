@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="stocks">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">#8E8E8E</item>
+        <item name="android:fontFamily">Montserrat</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">left</item>
+    </style>
+
+    <style name="find_company">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">Montserrat</item>
+        <item name="android:textColor">#1A1A1A</item>
+    </style>
+
+    <style name="roundedImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+</resources>
