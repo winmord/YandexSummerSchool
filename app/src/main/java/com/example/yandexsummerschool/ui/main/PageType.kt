@@ -17,6 +17,7 @@ object AllStocksPage : PageType() {
     override val value: Int
         get() = 0
 }
+
 object FavouriteStocksPage : PageType() {
     override val value: Int
         get() = 1

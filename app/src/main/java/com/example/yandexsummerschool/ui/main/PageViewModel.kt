@@ -1,41 +1,49 @@
 package com.example.yandexsummerschool.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.graphics.Bitmap
+import androidx.lifecycle.*
 
-class PageViewModel : ViewModel() {
-
-    private val _liveData = MutableLiveData<ArrayList<Stock>>()
-    private val _liveStocks = MutableLiveData<ArrayList<Stock>>()
+class PageViewModel() : ViewModel() {
     private val _restoreLiveData = MutableLiveData<Int>()
     private lateinit var _pageType: PageType
-    private var isRequested = false
-    private val _stockRequester = StockRequester()
-    // private lateinit var _favouriteStockStore: FavouriteStockStore
+    private lateinit var _favouriteStockStore: FavouriteStockStore
+    private lateinit var _stockApi: StockRequester
 
-    val stocks: LiveData<ArrayList<Stock>> = _liveData
-    val liveStocks: LiveData<ArrayList<Stock>> = _liveStocks
-    //val apiStocks: LiveData<ArrayList<Stock>> = _stockRequester.getAllStocks()
+    val stocks: LiveData<List<Stock>>
+        get() = _restoreLiveData.switchMap {
+            when (_pageType) {
+                AllStocksPage -> _stockApi.getMostActiveStocks().map { items ->
+                    items.map {
+                        it
+                    }
+                }
+                FavouriteStocksPage -> _favouriteStockStore.getAllFavourite().map { items ->
+                    items.map {
+                        it
+                    }
+                }
+            }
+        }
+
+    val logos: LiveData<List<Bitmap>>
+        get() = _restoreLiveData.switchMap {
+            _stockApi.getLogos().map { items ->
+                items.map {
+                    it
+                }
+            }
+        }
+
+    fun setStores(favouriteStockStore: FavouriteStockStore, stockApi: StockRequester) {
+        _favouriteStockStore = favouriteStockStore
+        _stockApi = stockApi
+    }
 
     fun setPageType(pageType: PageType) {
         _pageType = pageType
     }
 
-    fun restore(stockRequester: StockRequester, favouriteStockStore: FavouriteStockStore) {
+    fun restore() {
         _restoreLiveData.postValue(0)
-        _liveData.value = when (_pageType) {
-            AllStocksPage -> {
-                //apiStocks.value
-                //_stockApi.all().map{ it.favourite = _favouriteStockStore.check(it.id) }
-                stockRequester.getAllStocks()
-                //stockRequester.getLiveStocks().value
-            }
-            FavouriteStocksPage -> {
-                //val favId: List<Int> = _favouriteStockStore.all()
-                //_stockApi.withId(favId)
-                favouriteStockStore.getFavouriteStocks()
-            }
-        }
     }
 }

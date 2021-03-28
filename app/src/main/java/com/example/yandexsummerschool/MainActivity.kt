@@ -1,23 +1,24 @@
 package com.example.yandexsummerschool
 
 import android.content.Intent
+import android.content.res.Resources
+import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.View
+import android.os.Handler
 import android.widget.SearchView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.text.toSpannable
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
-import com.example.yandexsummerschool.ui.main.Stock
+import com.example.yandexsummerschool.ui.main.MyApp.Companion.app
 import com.example.yandexsummerschool.ui.main.SectionsPagerAdapter
-import com.example.yandexsummerschool.ui.main.StockRequester
 import com.google.android.material.tabs.TabLayout
-import java.io.IOException
-import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
     lateinit var tabs: TabLayout
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,34 +29,28 @@ class MainActivity : AppCompatActivity() {
         tabs = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
 
-        //stockRequester = StockRequester(this)
-
-        val searchView: SearchView = findViewById(R.id.search_view)
-        searchView.setOnQueryTextFocusChangeListener(object : View.OnFocusChangeListener {
-            override fun onFocusChange(v: View?, hasFocus: Boolean) {
-                if(hasFocus.equals(true)) {
-                    startActivity(Intent(this@MainActivity, SearchActivity::class.java))
-                }
-                currentFocus?.clearFocus()
-            }
+        val stockApi = app.stockRequester
+        val swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swiperefresh)
+        swipeRefreshLayout.setOnRefreshListener {
+            stockApi.update()
+            Handler().postDelayed(Runnable {
+                swipeRefreshLayout.isRefreshing = false
+            }, 4000)
         }
-        )
 
-        /*tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-
-
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                tab.setText(tab.text.toSpannable().setSpan(Size(), 0, tab))
+        swipeRefreshLayout.requestFocus()
+        val searchView: SearchView = findViewById(R.id.search_view)
+        searchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                startActivity(Intent(this@MainActivity, SearchActivity::class.java))
             }
+            //currentFocus?.clearFocus()
+        }
+    }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                tab.text.toSpannable().removeSpan()
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-
-            }
-
-        })*/
+    override fun onResume() {
+        super.onResume()
+        val swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swiperefresh)
+        swipeRefreshLayout.requestFocus()
     }
 }

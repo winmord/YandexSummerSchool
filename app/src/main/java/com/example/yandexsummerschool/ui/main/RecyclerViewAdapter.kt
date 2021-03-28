@@ -1,11 +1,10 @@
 package com.example.yandexsummerschool.ui.main
 
-import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.Color
-import com.example.yandexsummerschool.R
-
-
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +15,7 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
-//import okhttp3.*
-import kotlin.collections.ArrayList
+import com.example.yandexsummerschool.R
 
 fun ViewGroup.inflate(@LayoutRes layoutRes: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
@@ -28,9 +25,15 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
     RecyclerView.Adapter<RecyclerViewAdapter.StockHolder>() {
 
     private var _stocks: ArrayList<Stock> = arrayListOf()
+    private var _logos: ArrayList<Bitmap> = arrayListOf()
 
-    fun setStocks(stocks: ArrayList<Stock>) {
-        _stocks = stocks
+    fun setStocks(stocks: List<Stock>) {
+        _stocks = stocks as ArrayList<Stock>
+        notifyDataSetChanged()
+    }
+
+    fun setLogos(logos: List<Bitmap>) {
+        _logos = logos as ArrayList<Bitmap>
         notifyDataSetChanged()
     }
 
@@ -39,7 +42,7 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
         val inflatedView = parent.inflate(R.layout.stock, false)
         return StockHolder(inflatedView) { pos: Int, fav: Boolean ->
             val stock = _stocks[pos]
-            stock.favourite = fav
+            stock.setFavourite(fav)
             onFavoriteChange(stock)
         }
     }
@@ -60,10 +63,10 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
     class StockHolder(itemView: View, private val onFavouriteChange: (Int, Boolean) -> Unit) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private var imageView: ImageView = itemView.findViewById(R.id.imageView)
-        private var stock_name: TextView = itemView.findViewById(R.id.stock_name)
-        private var company_name: TextView = itemView.findViewById(R.id.company_name)
-        private var current_price: TextView = itemView.findViewById(R.id.current_price)
-        private var day_delta: TextView = itemView.findViewById(R.id.day_delta)
+        private var stockName: TextView = itemView.findViewById(R.id.stock_name)
+        private var companyName: TextView = itemView.findViewById(R.id.company_name)
+        private var currentPrice: TextView = itemView.findViewById(R.id.current_price)
+        private var dayDelta: TextView = itemView.findViewById(R.id.day_delta)
         private var buttonFav: Button = itemView.findViewById(R.id.favButton)
         private var buttonFavState = false
 
@@ -72,32 +75,27 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
         }
 
         fun bindStock(stock: Stock) {
-            //imageView.setImageResource(stock.getImageResource())
-            stock_name.text = stock.getStockName()
-            company_name.text = stock.getCompanyName()
-            current_price.text = stock.getCurrentPrice()
-            day_delta.text = stock.getDayDelta()
-            if(!stock.isDayDeltaPositive()) {
-                day_delta.setTextColor(Color.parseColor("#B32424"))
+            stockName.text = stock.getStockName()
+            companyName.text = stock.getCompanyName()
+            currentPrice.text = stock.getCurrentPrice()
+            dayDelta.text = stock.getDayDelta()
+            if (!stock.isDayDeltaPositive()) {
+                dayDelta.setTextColor(Color.parseColor("#B32424"))
             } else {
-                day_delta.setTextColor(Color.parseColor("#24B35D"))
+                dayDelta.setTextColor(Color.parseColor("#24B35D"))
             }
-            buttonFavState = stock.favourite
+            buttonFavState = stock.isFavourite()
             buttonFav.foreground = getDrawable(
                 itemView.context,
-                if (stock.favourite) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
+                if (stock.isFavourite()) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
             )
 
-            val logoUrl = stock.getLogoUrl()
-            if (logoUrl.isNotEmpty()) {
-                Picasso.with(itemView.context).load(logoUrl).into(imageView)
-            }
+            imageView.setImageBitmap(stock.getLogoBitmap())
         }
 
         fun setOddStocksBackground(pos: Int) {
             if (pos % 2 == 0) {
-                val color = getDrawable(itemView.context, android.R.color.holo_blue_light)
-                color?.alpha = 20
+                val color = ColorDrawable(Color.parseColor("#F0F4F7"))
                 itemView.background = color
             } else {
                 val color = getDrawable(itemView.context, android.R.color.white)
