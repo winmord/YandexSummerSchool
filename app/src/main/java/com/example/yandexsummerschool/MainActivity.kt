@@ -54,9 +54,4 @@ class MainActivity : AppCompatActivity() {
         val swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swiperefresh)
         swipeRefreshLayout.requestFocus()
     }
-
-    override fun onStart() {
-        super.onStart()
-        app.stockRequester.getStocks()
-    }
 }

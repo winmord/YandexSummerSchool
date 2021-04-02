@@ -31,6 +31,7 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
     init {
         _encryptedT = decrypt()
         _restoredFavouriteStocks = _favouriteStockStore.getRestoredSymbols()
+        getStocks()
     }
 
     fun update() {
