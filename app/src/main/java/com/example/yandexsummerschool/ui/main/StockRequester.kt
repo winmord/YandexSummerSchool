@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -31,17 +32,20 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
     init {
         _encryptedT = decrypt()
         _restoredFavouriteStocks = _favouriteStockStore.getRestoredSymbols()
-        getStocks()
     }
 
     fun update() {
-        _stocks.clear()
-        _favouriteStockStore.clear()
-        _restoredFavouriteStocks = _favouriteStockStore.getRestoredSymbols()
-        getStocks()
+        try {
+            _stocks.clear()
+            _favouriteStockStore.clear()
+            _restoredFavouriteStocks = _favouriteStockStore.getRestoredSymbols()
+            getStocks()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    private fun getStocks() {
+    fun getStocks() {
         val urlRequest = Builder().scheme(URL_SCHEME)
             .authority(URL_AUTHORITY)
             .appendPath(URL_PATH_STABLE)
@@ -66,23 +70,31 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                     val responseStocks = ArrayList<String>()
                     val stockJsonArray = JSONArray(response.body()!!.string())
                     for (stockNumber in 0 until stockJsonArray.length()) {
-                        val stockJson = JSONObject(stockJsonArray[stockNumber].toString())
-                        val stock = Stock(stockJson)
-                        getLogo(stock)
+                        try {
+                            val stockJson = JSONObject(stockJsonArray[stockNumber].toString())
+                            val stock = Stock(stockJson)
+                            getLogo(stock)
 
-                        val stockName = stock.getStockName()
-                        if (stockName in _restoredFavouriteStocks) {
-                            stock.setFavourite(true)
-                            _favouriteStockStore.onFavouriteChange(stock)
+                            val stockName = stock.getStockName()
+                            if (stockName in _restoredFavouriteStocks) {
+                                stock.setFavourite(true)
+                                _favouriteStockStore.onFavouriteChange(stock)
+                            }
+
+                            responseStocks.add(stockName)
+                            _stocks.add(stock)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-
-                        responseStocks.add(stockName)
-                        _stocks.add(stock)
                     }
 
                     for (restoredStock in _restoredFavouriteStocks) {
                         if (restoredStock !in responseStocks) {
-                            askForNonMostActiveStock(restoredStock)
+                            try {
+                                askForNonMostActiveStock(restoredStock)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                         }
                     }
 

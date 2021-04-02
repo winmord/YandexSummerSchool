@@ -1,15 +1,17 @@
 package com.example.yandexsummerschool.ui.main
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.json.JSONArray
 import java.io.File
 
-class FavouriteStockStore(cacheDir: String) {
+class FavouriteStockStore(cacheStore: SharedPreferences) {
     private var _favouriteStocks = ArrayList<Stock>()
     private val _fav = MutableLiveData<ArrayList<Stock>>()
-    private val _symbols = HashSet<String>()
-    private val _cacheFile = File("$cacheDir/favourites.cache")
+    private var _symbols = HashSet<String>()
+    private val _cacheStore = cacheStore
+    private val _cacheStoreEditor = _cacheStore.edit()
 
     fun onFavouriteChange(stock: Stock) {
         if (stock in _favouriteStocks) {
@@ -22,12 +24,7 @@ class FavouriteStockStore(cacheDir: String) {
     }
 
     private fun restore() {
-        if (_cacheFile.exists()) {
-            val cacheArray = JSONArray(_cacheFile.readText())
-            for (f in 0 until cacheArray.length()) {
-                _symbols.add(cacheArray[f].toString())
-            }
-        }
+        _symbols = _cacheStore.getStringSet("favourites", HashSet<String>()) as HashSet<String>
     }
 
     private fun addToCache(stock: Stock) {
@@ -45,8 +42,10 @@ class FavouriteStockStore(cacheDir: String) {
     }
 
     private fun saveCache() {
-        val cacheArray = JSONArray(_symbols)
-        _cacheFile.writeText(cacheArray.toString())
+        _cacheStoreEditor.remove("favourites")
+        _cacheStoreEditor.apply()
+        _cacheStoreEditor.putStringSet("favourites", _symbols)
+        _cacheStoreEditor.apply()
     }
 
     fun getRestoredSymbols(): HashSet<String> {
