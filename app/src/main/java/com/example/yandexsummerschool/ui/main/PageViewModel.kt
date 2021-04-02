@@ -25,12 +25,10 @@ class PageViewModel() : ViewModel() {
             }
         }
 
-    val logos: LiveData<List<Bitmap>>
+    val logos: LiveData<Int>
         get() = _restoreLiveData.switchMap {
             _stockApi.getLogos().map { items ->
-                items.map {
                     it
-                }
             }
         }
 

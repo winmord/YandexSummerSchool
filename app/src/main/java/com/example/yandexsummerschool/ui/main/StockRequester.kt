@@ -24,9 +24,8 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
     private val _cacheDir = cacheDir
 
     private val _mostActiveStocks = MutableLiveData<ArrayList<Stock>>()
-    private val _mostActiveStocksLogos = MutableLiveData<ArrayList<Bitmap>>()
+    private val _mostActiveStocksLogos = MutableLiveData<Int>()
     private var _stocks = ArrayList<Stock>()
-    private var _logos = ArrayList<Bitmap>()
     private var _restoredFavouriteStocks = HashSet<String>()
 
     init {
@@ -177,9 +176,7 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                         )
 
                         stock.setLogoBitmap(loadedBitmap)
-
-                        _logos.add(loadedBitmap)
-                        _mostActiveStocksLogos.postValue(_logos)
+                        _mostActiveStocksLogos.postValue(0)
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
@@ -192,7 +189,7 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
         return _mostActiveStocks
     }
 
-    fun getLogos(): LiveData<ArrayList<Bitmap>> {
+    fun getLogos(): LiveData<Int> {
         return _mostActiveStocksLogos
     }
 

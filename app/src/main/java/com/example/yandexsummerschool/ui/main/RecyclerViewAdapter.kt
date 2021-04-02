@@ -25,15 +25,15 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
     RecyclerView.Adapter<RecyclerViewAdapter.StockHolder>() {
 
     private var _stocks: ArrayList<Stock> = arrayListOf()
-    private var _logos: ArrayList<Bitmap> = arrayListOf()
+    private var _logosChanged: Int = 0
 
     fun setStocks(stocks: List<Stock>) {
         _stocks = stocks as ArrayList<Stock>
         notifyDataSetChanged()
     }
 
-    fun setLogos(logos: List<Bitmap>) {
-        _logos = logos as ArrayList<Bitmap>
+    fun setLogos(logos: Int) {
+        _logosChanged = logos
         notifyDataSetChanged()
     }
 
