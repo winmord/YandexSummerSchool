@@ -13,10 +13,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import com.example.yandexsummerschool.ui.main.MyApp.Companion.app
 import com.example.yandexsummerschool.ui.main.SectionsPagerAdapter
+import com.example.yandexsummerschool.ui.main.StockRequester
 import com.google.android.material.tabs.TabLayout
 
 class MainActivity : AppCompatActivity() {
     lateinit var tabs: TabLayout
+    private lateinit var _stockApi: StockRequester
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,11 +30,11 @@ class MainActivity : AppCompatActivity() {
 
         tabs = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
+        _stockApi = app.stockRequester
 
-        val stockApi = app.stockRequester
         val swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swiperefresh)
         swipeRefreshLayout.setOnRefreshListener {
-            stockApi.update()
+            _stockApi.update()
             Handler().postDelayed(Runnable {
                 swipeRefreshLayout.isRefreshing = false
             }, 4000)
@@ -44,7 +46,6 @@ class MainActivity : AppCompatActivity() {
             if (hasFocus) {
                 startActivity(Intent(this@MainActivity, SearchActivity::class.java))
             }
-            //currentFocus?.clearFocus()
         }
     }
 
@@ -52,5 +53,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         val swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swiperefresh)
         swipeRefreshLayout.requestFocus()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        app.stockRequester.getStocks()
     }
 }
