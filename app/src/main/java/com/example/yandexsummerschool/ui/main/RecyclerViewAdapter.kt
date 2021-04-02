@@ -1,5 +1,7 @@
 package com.example.yandexsummerschool.ui.main
 
+import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -14,6 +16,7 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.yandexsummerschool.R
 
@@ -25,15 +28,15 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
     RecyclerView.Adapter<RecyclerViewAdapter.StockHolder>() {
 
     private var _stocks: ArrayList<Stock> = arrayListOf()
-    private var _logos: ArrayList<Bitmap> = arrayListOf()
+    private var _logosChanged: Int = 0
 
     fun setStocks(stocks: List<Stock>) {
         _stocks = stocks as ArrayList<Stock>
         notifyDataSetChanged()
     }
 
-    fun setLogos(logos: List<Bitmap>) {
-        _logos = logos as ArrayList<Bitmap>
+    fun setLogos(logos: Int) {
+        _logosChanged = logos
         notifyDataSetChanged()
     }
 
@@ -68,6 +71,7 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
         private var currentPrice: TextView = itemView.findViewById(R.id.current_price)
         private var dayDelta: TextView = itemView.findViewById(R.id.day_delta)
         private var buttonFav: Button = itemView.findViewById(R.id.favButton)
+        private var cardView: CardView = itemView.findViewById(R.id.cardView)
         private var buttonFavState = false
 
         init {
@@ -94,13 +98,11 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
         }
 
         fun setOddStocksBackground(pos: Int) {
-            if (pos % 2 == 0) {
-                val color = ColorDrawable(Color.parseColor("#F0F4F7"))
-                itemView.background = color
-            } else {
-                val color = getDrawable(itemView.context, android.R.color.white)
-                itemView.background = color
-            }
+            cardView.setCardBackgroundColor(
+                if (pos % 2 == 0)
+                    Color.parseColor("#F0F4F7")
+                else
+                    Color.parseColor("#FFFFFF"))
         }
 
         override fun onClick(v: View?) {

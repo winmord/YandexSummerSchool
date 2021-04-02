@@ -1,6 +1,5 @@
 package com.example.yandexsummerschool.ui.main
 
-import android.graphics.Bitmap
 import androidx.lifecycle.*
 
 class PageViewModel() : ViewModel() {
@@ -25,12 +24,10 @@ class PageViewModel() : ViewModel() {
             }
         }
 
-    val logos: LiveData<List<Bitmap>>
+    val logos: LiveData<Int>
         get() = _restoreLiveData.switchMap {
             _stockApi.getLogos().map { items ->
-                items.map {
                     it
-                }
             }
         }
 

@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             _stockApi.update()
             Handler().postDelayed(Runnable {
                 swipeRefreshLayout.isRefreshing = false
-            }, 4000)
+            }, 2000)
         }
 
         swipeRefreshLayout.requestFocus()
@@ -53,10 +53,5 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         val swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swiperefresh)
         swipeRefreshLayout.requestFocus()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        app.stockRequester.getStocks()
     }
 }
