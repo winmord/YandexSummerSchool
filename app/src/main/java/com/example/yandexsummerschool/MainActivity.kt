@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             _stockApi.update()
             Handler().postDelayed(Runnable {
                 swipeRefreshLayout.isRefreshing = false
-            }, 4000)
+            }, 2000)
         }
 
         swipeRefreshLayout.requestFocus()

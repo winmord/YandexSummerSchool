@@ -1,6 +1,5 @@
 package com.example.yandexsummerschool.ui.main
 
-import android.graphics.Bitmap
 import androidx.lifecycle.*
 
 class PageViewModel() : ViewModel() {
