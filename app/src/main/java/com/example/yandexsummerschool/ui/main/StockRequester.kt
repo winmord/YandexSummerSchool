@@ -2,6 +2,7 @@ package com.example.yandexsummerschool.ui.main
 
 import android.graphics.Bitmap
 import android.net.Uri.Builder
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.squareup.picasso.Picasso
@@ -140,6 +141,39 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
         })
     }
 
+    fun searchStocks(query: String) {
+        val urlRequest = Builder().scheme(URL_SCHEME)
+            .authority(URL_SANDBOX)
+            .appendPath(URL_PATH_STABLE)
+            .appendPath(URL_PATH_SEARCH)
+            .appendPath(query)
+            .appendQueryParameter(URL_QUERY_PARAM_TOKEN, "Tpk_bfb2e6499e434d26a35c1e092bb606da")
+            .build().toString()
+
+        val request = Request.Builder().url(urlRequest).build()
+
+        _client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val stockJson = JSONArray(response.body()!!.string())
+                    Log.d("SEARCH", stockJson.toString())
+                    /*val stock = Stock(JSONObject(stockJson["quote"].toString()))
+                    getLogo(stock)
+                    stock.setFavourite(true)
+                    _favouriteStockStore.onFavouriteChange(stock)
+                    _stocks.add(stock)
+                    _mostActiveStocks.postValue(_stocks)*/
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
+        })
+    }
+
     fun getLogo(stock: Stock) {
         val stockName = stock.getStockName()
         val logoFile = File("$_cacheDir/$stockName.jpeg")
@@ -206,7 +240,9 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
     companion object {
         private const val URL_SCHEME = "https"
         private const val URL_AUTHORITY = "cloud.iexapis.com"
+        private const val URL_SANDBOX = "sandbox.iexapis.com"
         private const val URL_PATH_STABLE = "stable"
+        private const val URL_PATH_SEARCH = "search"
         private const val URL_PATH_STOCK = "stock"
         private const val URL_PATH_MARKET = "market"
         private const val URL_PATH_COLLECTION = "collection"
