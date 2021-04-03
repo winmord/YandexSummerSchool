@@ -30,7 +30,7 @@ class PlaceholderFragment: Fragment() {
             setStores(favouriteStockStore, stockApi)
         }
 
-        adapter = RecyclerViewAdapter() {
+        adapter = RecyclerViewAdapter(context) {
             favouriteStockStore.onFavouriteChange(it)
             pageViewModel.restore()
         }

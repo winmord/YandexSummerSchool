@@ -33,7 +33,7 @@ class SearchActivity : AppCompatActivity() {
         recyclerView.setHasFixedSize(true)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        _adapter = RecyclerViewAdapter() {
+        _adapter = RecyclerViewAdapter(this) {
             _favouriteStockStore.onFavouriteChange(it)
         }
 
@@ -47,18 +47,18 @@ class SearchActivity : AppCompatActivity() {
                 if (newText.isEmpty()) {
                     _adapter.setStocks(ArrayList<Stock>())
                 } else {
-                    _adapter.setStocks(stocks!!.filter {
+                    val filteredStocks = stocks!!.filter {
                         it.getCompanyName().toLowerCase(Locale.ROOT)
                             .contains(newText.toLowerCase(Locale.ROOT))
                                 || it.getStockName().toLowerCase(Locale.ROOT)
                             .contains(newText.toLowerCase(Locale.ROOT))
-                    })
-                    recyclerView.adapter = _adapter
+                    }
+                    _adapter.setStocks(filteredStocks)
                 }
+
+                recyclerView.adapter = _adapter
                 return false
             }
         })
-
-        //searchView.requestFocus()
     }
 }

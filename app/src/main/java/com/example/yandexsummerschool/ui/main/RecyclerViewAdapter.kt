@@ -1,11 +1,14 @@
 package com.example.yandexsummerschool.ui.main
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,14 +20,19 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.example.yandexsummerschool.InfoActivity
 import com.example.yandexsummerschool.R
 
 fun ViewGroup.inflate(@LayoutRes layoutRes: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
 }
 
-class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
+class RecyclerViewAdapter(
+    private val _context: Context,
+    private val onFavoriteChange: (Stock) -> Unit
+) :
     RecyclerView.Adapter<RecyclerViewAdapter.StockHolder>() {
 
     private var _stocks: ArrayList<Stock> = arrayListOf()
@@ -63,7 +71,7 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
 
 
     @RequiresApi(Build.VERSION_CODES.M)
-    class StockHolder(itemView: View, private val onFavouriteChange: (Int, Boolean) -> Unit) :
+    inner class StockHolder(itemView: View, private val onFavouriteChange: (Int, Boolean) -> Unit) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private var imageView: ImageView = itemView.findViewById(R.id.imageView)
         private var stockName: TextView = itemView.findViewById(R.id.stock_name)
@@ -76,6 +84,18 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
 
         init {
             buttonFav.setOnClickListener(this)
+            cardView.setOnClickListener {
+                val currentStock = _stocks[adapterPosition]
+                startActivity(
+                    _context,
+                    Intent(_context, InfoActivity::class.java)
+                        .putExtra("stockName", currentStock.getStockName())
+                        .putExtra("companyName", currentStock.getCompanyName())
+                        .putExtra("stockPrice", currentStock.getCurrentPrice())
+                        .putExtra("stockChange", currentStock.getDayDelta()),
+                    Bundle.EMPTY
+                )
+            }
         }
 
         fun bindStock(stock: Stock) {
@@ -102,7 +122,8 @@ class RecyclerViewAdapter(private val onFavoriteChange: (Stock) -> Unit) :
                 if (pos % 2 == 0)
                     Color.parseColor("#F0F4F7")
                 else
-                    Color.parseColor("#FFFFFF"))
+                    Color.parseColor("#FFFFFF")
+            )
         }
 
         override fun onClick(v: View?) {
