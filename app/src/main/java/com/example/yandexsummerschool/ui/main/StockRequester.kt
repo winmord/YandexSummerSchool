@@ -21,15 +21,17 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
     private val _client: OkHttpClient = OkHttpClient()
     private val _favouriteStockStore = favouriteStockStore
 
-    private var _encryptedT = "rma2h;::h62:2dh6ddec59cc968e8d6e78e"
+    private var _encryptedT = "rma87c6h5gd7;e763hd;5cgfh825758ceh4"
     private val _cacheDir = cacheDir
 
     private val _mostActiveStocks = MutableLiveData<ArrayList<Stock>>()
     private val _mostActiveStocksLogos = MutableLiveData<Int>()
+    private val _mostActiveStocksCharts = MutableLiveData<Int>()
     private var _stocks = ArrayList<Stock>()
     private var _restoredFavouriteStocks = HashSet<String>()
 
     init {
+
         _encryptedT = decrypt()
         _restoredFavouriteStocks = _favouriteStockStore.getRestoredSymbols()
         getStocks()
@@ -75,6 +77,7 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                             val stockJson = JSONObject(stockJsonArray[stockNumber].toString())
                             val stock = Stock(stockJson)
                             getLogo(stock)
+                            //getChart(stock)
 
                             val stockName = stock.getStockName()
                             if (stockName in _restoredFavouriteStocks) {
@@ -130,6 +133,8 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                     val stockJson = JSONObject(response.body()!!.string())
                     val stock = Stock(JSONObject(stockJson["quote"].toString()))
                     getLogo(stock)
+                    //getChart(stock)
+
                     stock.setFavourite(true)
                     _favouriteStockStore.onFavouriteChange(stock)
                     _stocks.add(stock)
@@ -141,37 +146,47 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
         })
     }
 
-    fun searchStocks(query: String) {
+    fun getChart(stock: Stock) {
         val urlRequest = Builder().scheme(URL_SCHEME)
-            .authority(URL_SANDBOX)
+            .authority(URL_AUTHORITY)
             .appendPath(URL_PATH_STABLE)
-            .appendPath(URL_PATH_SEARCH)
-            .appendPath(query)
-            .appendQueryParameter(URL_QUERY_PARAM_TOKEN, "Tpk_bfb2e6499e434d26a35c1e092bb606da")
+            .appendPath(URL_PATH_STOCK)
+            .appendPath(stock.getStockName().toLowerCase(Locale.ROOT))
+            .appendPath(URL_PATH_CHART)
+            .appendPath(URL_PATH_MONTH)
+            .appendQueryParameter(URL_QUERY_PARAM_TOKEN, _encryptedT)
             .build().toString()
 
         val request = Request.Builder().url(urlRequest).build()
 
         _client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                Log.d("GRAPH", e.toString())
                 e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 try {
-                    val stockJson = JSONArray(response.body()!!.string())
-                    Log.d("SEARCH", stockJson.toString())
-                    /*val stock = Stock(JSONObject(stockJson["quote"].toString()))
-                    getLogo(stock)
-                    stock.setFavourite(true)
-                    _favouriteStockStore.onFavouriteChange(stock)
-                    _stocks.add(stock)
-                    _mostActiveStocks.postValue(_stocks)*/
-                } catch (e: JSONException) {
+                    val chartJSONArray = JSONArray(response.body()!!.string())
+                    val chart = ArrayList<Float>()
+                    for (chartNumber in 0 until chartJSONArray.length()) {
+                        try {
+                            val chartJSON = JSONObject(chartJSONArray[chartNumber].toString())
+                            Log.d("GRAPH", chartJSON.toString())
+                            chart.add(chartJSON["close"].toString().toFloat())
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    stock.setChart(chart)
+                    _mostActiveStocksCharts.postValue(0)
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
         })
+
     }
 
     fun getLogo(stock: Stock) {
@@ -228,6 +243,10 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
         return _mostActiveStocksLogos
     }
 
+    fun getCharts(): LiveData<Int> {
+        return _mostActiveStocksCharts
+    }
+
     private fun decrypt(): String {
         var decryptedT = ""
         for (symbol in _encryptedT) {
@@ -244,6 +263,8 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
         private const val URL_PATH_STABLE = "stable"
         private const val URL_PATH_SEARCH = "search"
         private const val URL_PATH_STOCK = "stock"
+        private const val URL_PATH_CHART = "chart"
+        private const val URL_PATH_MONTH = "1m"
         private const val URL_PATH_MARKET = "market"
         private const val URL_PATH_COLLECTION = "collection"
         private const val URL_PATH_LIST = "list"

@@ -31,6 +31,13 @@ class PageViewModel() : ViewModel() {
             }
         }
 
+    val charts: LiveData<Int>
+        get() = _restoreLiveData.switchMap {
+            _stockApi.getCharts().map { items ->
+                it
+            }
+        }
+
     fun setStores(favouriteStockStore: FavouriteStockStore, stockApi: StockRequester) {
         _favouriteStockStore = favouriteStockStore
         _stockApi = stockApi

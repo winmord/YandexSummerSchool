@@ -17,6 +17,7 @@ class Stock(stockJSON: JSONObject) {
     private var _dayDeltaIsPositive: Boolean = true
     private lateinit var _logoBitmap: Bitmap
     private var _isFavourite: Boolean = false
+    private var _chart = ArrayList<Float>()
 
     init {
         _currentPrice = "$" + stringTo2decimalDouble(stockJSON.getString("latestPrice")).toString()
@@ -70,5 +71,13 @@ class Stock(stockJSON: JSONObject) {
 
     fun isDayDeltaPositive(): Boolean {
         return this._dayDeltaIsPositive
+    }
+
+    fun setChart(chart: ArrayList<Float>) {
+        _chart = chart
+    }
+
+    fun getChart(): ArrayList<Float> {
+        return _chart
     }
 }

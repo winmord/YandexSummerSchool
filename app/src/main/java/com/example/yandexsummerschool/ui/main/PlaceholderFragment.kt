@@ -52,6 +52,7 @@ class PlaceholderFragment: Fragment() {
 
         pageViewModel.stocks.observe(this, Observer(adapter::setStocks))
         pageViewModel.logos.observe(this, Observer(adapter::setLogos))
+        pageViewModel.charts.observe(this, Observer(adapter::setCharts))
         pageViewModel.restore()
     }
 

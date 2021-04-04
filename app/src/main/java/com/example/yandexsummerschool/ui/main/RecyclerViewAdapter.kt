@@ -37,6 +37,7 @@ class RecyclerViewAdapter(
 
     private var _stocks: ArrayList<Stock> = arrayListOf()
     private var _logosChanged: Int = 0
+    private var _chartsChanged: Int = 0
 
     fun setStocks(stocks: List<Stock>) {
         _stocks = stocks as ArrayList<Stock>
@@ -45,6 +46,11 @@ class RecyclerViewAdapter(
 
     fun setLogos(logos: Int) {
         _logosChanged = logos
+        notifyDataSetChanged()
+    }
+
+    fun setCharts(charts: Int) {
+        _chartsChanged = charts
         notifyDataSetChanged()
     }
 
@@ -89,6 +95,7 @@ class RecyclerViewAdapter(
                 startActivity(
                     _context,
                     Intent(_context, InfoActivity::class.java)
+                        .putExtra("adapterPosition", adapterPosition)
                         .putExtra("stockName", currentStock.getStockName())
                         .putExtra("companyName", currentStock.getCompanyName())
                         .putExtra("stockPrice", currentStock.getCurrentPrice())
