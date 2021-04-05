@@ -94,7 +94,8 @@ class RecyclerViewAdapter(
                 startActivity(
                     _context,
                     Intent(_context, InfoActivity::class.java)
-                        .putExtra("adapterPosition", adapterPosition),
+                        .putExtra("adapterPosition", adapterPosition)
+                        .putExtra("isFavourite", buttonFavState),
                     Bundle.EMPTY
                 )
             }
