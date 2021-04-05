@@ -30,10 +30,10 @@ class Stock(stockJSON: JSONObject) {
 
         if (change >= 0.0) {
             _dayDelta = "$${change} (${changePercent}%)"
-            _deltaColor = Color.parseColor("#B32424")
+            _deltaColor = Color.parseColor("#24B35D")
         } else {
             _dayDelta = "-$${change.absoluteValue} (${changePercent}%)"
-            _deltaColor = Color.parseColor("#24B35D")
+            _deltaColor = Color.parseColor("#B32424")
         }
     }
 
