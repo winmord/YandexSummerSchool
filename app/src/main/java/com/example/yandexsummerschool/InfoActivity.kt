@@ -59,7 +59,13 @@ class InfoActivity : AppCompatActivity() {
         val favButton: Button = findViewById(R.id.infoFavButton)
 
         val adapterPosition = intent.getIntExtra("adapterPosition", 0)
-        val stock = _stockApi.getMostActiveStocks().value!![adapterPosition]
+        val stockIsFavourite = intent.getBooleanExtra("isFavourite", false)
+
+        val stock =
+            if (stockIsFavourite)
+                _favouriteStockStore.getAllFavourite().value!![adapterPosition]
+            else
+                _stockApi.getMostActiveStocks().value!![adapterPosition]
 
         stockNameView.text = stock.getStockName()
         companyNameView.text = stock.getCompanyName()
@@ -70,7 +76,7 @@ class InfoActivity : AppCompatActivity() {
         val lineChart: LineChart = findViewById(R.id.graph)
 
         val rand = Random()
-        val chart = List(30) { rand.nextFloat() * 10000}
+        val chart = List(30) { rand.nextFloat() * 10000 }
 
         val firstChartEntity = ChartEntity(Color.BLACK, chart.toFloatArray())
 
