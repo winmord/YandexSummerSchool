@@ -77,7 +77,6 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                             val stockJson = JSONObject(stockJsonArray[stockNumber].toString())
                             val stock = Stock(stockJson)
                             getLogo(stock)
-                            //getChart(stock)
 
                             val stockName = stock.getStockName()
                             if (stockName in _restoredFavouriteStocks) {
@@ -133,7 +132,6 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                     val stockJson = JSONObject(response.body()!!.string())
                     val stock = Stock(JSONObject(stockJson["quote"].toString()))
                     getLogo(stock)
-                    //getChart(stock)
 
                     stock.setFavourite(true)
                     _favouriteStockStore.onFavouriteChange(stock)

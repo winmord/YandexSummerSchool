@@ -91,45 +91,38 @@ class RecyclerViewAdapter(
         init {
             buttonFav.setOnClickListener(this)
             cardView.setOnClickListener {
-                val currentStock = _stocks[adapterPosition]
                 startActivity(
                     _context,
                     Intent(_context, InfoActivity::class.java)
-                        .putExtra("adapterPosition", adapterPosition)
-                        .putExtra("stockName", currentStock.getStockName())
-                        .putExtra("companyName", currentStock.getCompanyName())
-                        .putExtra("stockPrice", currentStock.getCurrentPrice())
-                        .putExtra("stockChange", currentStock.getDayDelta()),
+                        .putExtra("adapterPosition", adapterPosition),
                     Bundle.EMPTY
                 )
             }
         }
 
         fun bindStock(stock: Stock) {
+            imageView.setImageBitmap(stock.getLogoBitmap())
             stockName.text = stock.getStockName()
             companyName.text = stock.getCompanyName()
             currentPrice.text = stock.getCurrentPrice()
             dayDelta.text = stock.getDayDelta()
-            if (!stock.isDayDeltaPositive()) {
-                dayDelta.setTextColor(Color.parseColor("#B32424"))
-            } else {
-                dayDelta.setTextColor(Color.parseColor("#24B35D"))
-            }
+            dayDelta.setTextColor(stock.getDeltaColor())
+
             buttonFavState = stock.isFavourite()
             buttonFav.foreground = getDrawable(
                 itemView.context,
                 if (stock.isFavourite()) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
             )
-
-            imageView.setImageBitmap(stock.getLogoBitmap())
         }
 
         fun setOddStocksBackground(pos: Int) {
             cardView.setCardBackgroundColor(
-                if (pos % 2 == 0)
-                    Color.parseColor("#F0F4F7")
-                else
-                    Color.parseColor("#FFFFFF")
+                Color.parseColor(
+                    if (pos % 2 == 0)
+                        "#F0F4F7"
+                    else
+                        "#FFFFFF"
+                )
             )
         }
 

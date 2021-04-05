@@ -10,6 +10,8 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
+import com.example.yandexsummerschool.ui.main.FavouriteStockStore
 import com.example.yandexsummerschool.ui.main.MyApp.Companion.app
 import com.example.yandexsummerschool.ui.main.StockRequester
 import ir.farshid_roohi.linegraph.ChartEntity
@@ -17,10 +19,27 @@ import ir.farshid_roohi.linegraph.LineChart
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random.Default.nextFloat
+import kotlin.random.Random.Default.nextInt
 
 class InfoActivity : AppCompatActivity() {
     private lateinit var _stockApi: StockRequester
-    private val graph1 = floatArrayOf(113000f, 183000f, 188000f, 695000f, 324000f, 230000f, 188000f, 15000f, 126000f, 5000f, 33000f)
+    private lateinit var _favouriteStockStore: FavouriteStockStore
+
+    private var buttonFavState = false
+    private val graph1 = floatArrayOf(
+        113000f,
+        183000f,
+        188000f,
+        695000f,
+        324000f,
+        230000f,
+        188000f,
+        15000f,
+        126000f,
+        5000f,
+        33000f
+    )
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("UseCompatLoadingForDrawables", "ResourceAsColor")
@@ -29,37 +48,58 @@ class InfoActivity : AppCompatActivity() {
         setContentView(R.layout.activity_info)
 
         _stockApi = app.stockRequester
+        _favouriteStockStore = app.favouriteStockStore
 
         val stockNameView: TextView = findViewById(R.id.infoStockName)
         val companyNameView: TextView = findViewById(R.id.infoCompanyName)
         val priceView: TextView = findViewById(R.id.infoStockPrice)
         val changeView: TextView = findViewById(R.id.infoStockChange)
         val buyButton: Button = findViewById(R.id.infoBuyButton)
+        val backButton: Button = findViewById(R.id.infoBackButton)
+        val favButton: Button = findViewById(R.id.infoFavButton)
 
-        val position = intent.getIntExtra("adapterPosition", 0)
-        stockNameView.text = intent.getStringExtra("stockName")
-        companyNameView.text = intent.getStringExtra("companyName")
-        priceView.text = intent.getStringExtra("stockPrice")
-        changeView.text = intent.getStringExtra("stockChange")
+        val adapterPosition = intent.getIntExtra("adapterPosition", 0)
+        val stock = _stockApi.getMostActiveStocks().value!![adapterPosition]
 
-        val stock = _stockApi.getMostActiveStocks().value!![position]
-
-        if (changeView.text.contains('-')) {
-            changeView.setTextColor(Color.parseColor("#B32424"))
-        } else {
-            changeView.setTextColor(Color.parseColor("#24B35D"))
-        }
+        stockNameView.text = stock.getStockName()
+        companyNameView.text = stock.getCompanyName()
+        priceView.text = stock.getCurrentPrice()
+        changeView.text = stock.getDayDelta()
+        changeView.setTextColor(stock.getDeltaColor())
 
         val lineChart: LineChart = findViewById(R.id.graph)
 
-        val firstChartEntity = ChartEntity(Color.BLACK, graph1)
+        val rand = Random()
+        val chart = List(30) { rand.nextFloat() * 10000}
+
+        val firstChartEntity = ChartEntity(Color.BLACK, chart.toFloatArray())
 
         val list = ArrayList<ChartEntity>()
         list.add(firstChartEntity)
         lineChart.setList(list)
         lineChart.bgColor = Color.WHITE
 
-        buyButton.text = "BUY FOR ${intent.getStringExtra("stockPrice")}"
+        buyButton.text = "BUY FOR ${stock.getCurrentPrice()}"
+
+        backButton.setOnClickListener {
+            this.finish()
+        }
+
+        buttonFavState = stock.isFavourite()
+        favButton.setOnClickListener {
+            if (buttonFavState) {
+                favButton.foreground =
+                    AppCompatResources.getDrawable(this, android.R.drawable.btn_star_big_off)
+                buttonFavState = false
+            } else {
+                favButton.foreground =
+                    AppCompatResources.getDrawable(this, android.R.drawable.btn_star_big_on)
+                buttonFavState = true
+            }
+
+            stock.setFavourite(buttonFavState)
+            _favouriteStockStore.onFavouriteChange(stock)
+        }
 
         buyButton.setOnClickListener {
             Toast.makeText(this, "Stonk!", Toast.LENGTH_SHORT).show()
