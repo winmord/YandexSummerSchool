@@ -19,6 +19,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="23dp"
+        android:layout_height="20dp"
+        android:id="@+id/infoBackButton"
+        android:layout_marginTop="26dp"
+        android:layout_marginRight="100dp"
+        android:background="@android:color/transparent"
+        android:foreground="@drawable/ic_baseline_arrow_back_24"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/infoStockName">
+    </androidx.appcompat.widget.AppCompatButton>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/infoFavButton"
+        android:layout_marginTop="26dp"
+        android:layout_marginLeft="100dp"
+        android:background="@android:color/transparent"
+        android:foreground="@android:drawable/btn_star_big_off"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/infoStockName">
+    </androidx.appcompat.widget.AppCompatButton>
+
     <TextView
         android:id="@+id/infoCompanyName"
         android:layout_width="wrap_content"
