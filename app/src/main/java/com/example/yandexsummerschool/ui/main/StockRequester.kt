@@ -215,16 +215,17 @@ class StockRequester(favouriteStockStore: FavouriteStockStore, cacheDir: String)
                     try {
                         val logoJSON = JSONObject(response.body()!!.string())
                         val logoUrl = logoJSON.getString("url")
+                        if(logoUrl.isNotEmpty()) {
+                            val loadedBitmap = Picasso.get().load(logoUrl).get()
+                            loadedBitmap.compress(
+                                Bitmap.CompressFormat.JPEG,
+                                100,
+                                FileOutputStream(logoFile)
+                            )
 
-                        val loadedBitmap = Picasso.get().load(logoUrl).get()
-                        loadedBitmap.compress(
-                            Bitmap.CompressFormat.JPEG,
-                            100,
-                            FileOutputStream(logoFile)
-                        )
-
-                        stock.setLogoBitmap(loadedBitmap)
-                        _mostActiveStocksLogos.postValue(0)
+                            stock.setLogoBitmap(loadedBitmap)
+                            _mostActiveStocksLogos.postValue(0)
+                        }
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
